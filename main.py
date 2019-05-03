@@ -70,7 +70,7 @@ def main():
             simulator(ist)
 
     except IOError:
-        print('Check filename again!')
+        print('Check filename again!\nTry python main.py memory.txt')
 
 
 if __name__ == '__main__':
