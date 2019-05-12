@@ -39,7 +39,7 @@ def simulator(ist):
 
         # R-type according to opcode:
         # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
-        if opcode == 0b000000 or opcode == 0b000010 or opcode == 000100  or\
+        if opcode == 0b000000 or opcode == 0b000010 or opcode == 0b000100  or\
             opcode == 0b00100 or opcode == 0b001010:
 
                 #getting rs 5b by masking and shifting
