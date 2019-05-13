@@ -10,8 +10,13 @@ PC = 0
 # R for register
 R=[0]*31
 
-
-
+# Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
+# Arithmetic, Logical, Memory Access, Control Transfer
+total_instructions = 0 
+arithmetic_freq = 0
+logical_freq = 0
+mem_access_freq = 0
+cntrl_transfer_freq = 0
 
 def r_type(op,rs,rt,rd):
     # R-type according to opcode:
