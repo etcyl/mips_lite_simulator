@@ -61,10 +61,13 @@ def r_type(op,rs,rt,rd):
         
 
 def i_type(op,rs,rt,imm):
-    pass
+    # I-type according to opcode:
+    # ADDI: 000001, SUBI: 000011, MULI: 000101, ORI: 000111, ANDI: 001001, XORI: 001011
+    # LDW: 001100, STW: 001101
     # I- TYPE
     #   opcode      rs	    rt	    imm
     #    6b         5b	    5b	    16b
+    pass
 
 
 def simulator(ist):
