@@ -12,11 +12,34 @@ R=[0]*31
 
 # Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
 # Arithmetic, Logical, Memory Access, Control Transfer
-total_instructions = 0 
-arithmetic_freq = 0
+total_instructions = 0
+arithmetic_inst = 0 # Number of arithmetic instructions
+arithmetic_freq = 0 
+logical_inst = 0
 logical_freq = 0
-mem_access_freq = 0
-cntrl_transfer_freq = 0
+mem_inst = 0
+mem_freq = 0
+cntrl_inst = 0
+cntrl_freq = 0
+
+def set_frequencies():
+    if arithmetic_inst >= 1 and total_instructiona >= 1:
+        arithmetic_freq = arithmetic_inst / total_instructions
+    else:
+        print('error setting arithmetic freq: arithmetic_inst | total_instructions == 0')
+        return
+        
+    if logical_instr >= 1:
+        logical_freq = logical_instr / total_instructions
+    
+    if mem_inst >= 1:
+        mem_freq = mem_inst / total_instructions
+        
+    if cntrl_inst >= 1:
+        cntrl_freq = cntrl_inst / total_instructions
+    
+    print('set instruction frequencies')
+    return    
 
 def r_type(op,rs,rt,rd):
     # R-type according to opcode:
