@@ -101,7 +101,7 @@ def i_type(op,rs,rt,imm):
      # XORI
     elif op == 0b001011:
         
-        R[rd] = R[rs] ^ R[rt]
+        R[rd] = int(R[rs]) ^ int(R[rt])
         print('XORI R'+str(rd)+','^' R'+str(rs)+', R'+str(rt))     
     
     else:
