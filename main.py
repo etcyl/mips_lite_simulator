@@ -24,6 +24,41 @@ def r_type(op,rs,rt,rd):
 
         R[rd] = R[rs] + R[rt]
         print('ADD R'+str(rd)+','+' R'+str(rs)+', R'+str(rt))
+        
+    # SUB    
+    elif op == 0b000010:
+        
+        R[rd] = R[rs] - R[rt]
+        print('SUB R'+str(rd)+','-' R'+str(rs)+', R'+str(rt))
+        
+    # MUL
+    elif op == 0b000100:
+        
+        R[rd] = R[rs] * R[rt]
+        print('MUL R'+str(rd)+','*' R'+str(rs)+', R'+str(rt))
+        
+    # OR
+    elif op == 0b000110:
+        
+        R[rd] = R[rs] | R[rt]
+        print('OR R'+str(rd)+','|' R'+str(rs)+', R'+str(rt))
+        
+    # AND
+    elif op == 0b001000:
+        
+        R[rd] = R[rs] & R[rt]
+        print('AND R'+str(rd)+','&' R'+str(rs)+', R'+str(rt))
+        
+     # XOR
+    elif op == 0b001010:
+        
+        R[rd] = R[rs] ^ R[rt]
+        print('XOR R'+str(rd)+','^' R'+str(rs)+', R'+str(rt))     
+    
+    else:
+        print('r_type opcode error: default case used instead')
+  
+        
 
 def i_type(op,rs,rt,imm):
     pass
