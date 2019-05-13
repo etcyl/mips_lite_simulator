@@ -23,7 +23,7 @@ cntrl_inst = 0
 cntrl_freq = 0
 
 def set_frequencies():
-    if arithmetic_inst >= 1 and total_instructiona >= 1:
+    if arithmetic_inst >= 1 and total_instructions >= 1:
         arithmetic_freq = arithmetic_inst / total_instructions
     else:
         print('error setting arithmetic freq: arithmetic_inst | total_instructions == 0')
