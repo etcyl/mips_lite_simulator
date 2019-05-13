@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# https://www.eg.bucknell.edu/~csci320/mips_web/
 
 import sys
 
@@ -13,10 +14,16 @@ R=[0]*31
 
 
 def r_type(op,rs,rt,rd):
-    pass
-    # R- TYPE
+    # R-type according to opcode:
+    # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
     #   opcode      rs	    rt	    rd	   Un-use
     #    6b         5b	    5b	    5b	    11b
+
+    # ADD
+    if op == 0b000000:
+
+        R[rd] = R[rs] + R[rt]
+        print('ADD R'+str(rd)+','+' R'+str(rs)+', R'+str(rt))
 
 def i_type(op,rs,rt,imm):
     pass
@@ -32,20 +39,42 @@ def simulator(ist):
         ist[PC]=int(ist[PC],16)
         print(bin(ist[PC]))
 
-        # shift right to get opcode
-        opcode = ist[PC]>>16
+        # R- TYPE
+        #   opcode      rs	    rt	    rd	   Un-use
+        #    6b         5b	    5b	    5b	    11b
+        # I- TYPE
+        #   opcode      rs	    rt	    imm
+        #    6b         5b	    5b	    16b
+
+        # shift right to the right 5+5+5+11=26 opcode
+        opcode = ist[PC]>>26
+
 
         # Decode go here
 
         # R-type according to opcode:
         # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
         if opcode == 0b000000 or opcode == 0b000010 or opcode == 0b000100  or\
-            opcode == 0b00100 or opcode == 0b001010:
+           opcode == 0b00100 or opcode == 0b001010:
+            #getting rs 5b by masking and shifting
 
-                #getting rs 5b by masking and shifting
-                rs=ist[PC] & 0b000000000011111000000000
+            print('opcode ='+bin(opcode))
+            # 5+5+11=21 to the rght
+            rs= (ist[PC]>>21) & 0b00000011111
+            #print(bin(rs))
 
-                r_type(opccode,)
+            # 5+11=16 to the right
+            rt=(ist[PC]>>16) & 0b0000000000011111
+            #print(bin(rt))
+
+            # 11
+            rd=(ist[PC]>>11) & 0b000000000000000011111
+            #print(bin(rd))
+
+
+            r_type(opcode,rs,rt,rd)
+
+
 
 
 
