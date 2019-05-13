@@ -24,19 +24,22 @@ cntrl_freq = 0
 
 def set_frequencies():
     if arithmetic_inst >= 1 and total_instructions >= 1:
-        arithmetic_freq = arithmetic_inst / total_instructions
+        arithmetic_freq = float(arithmetic_inst) / float(total_instructions)
     else:
-        print('error setting arithmetic freq: arithmetic_inst | total_instructions == 0')
-        return
+        if arithmetic_inst == 0:
+            pass
+        else:
+            print('error setting arithmetic freq: total_instructions == 0')
+            return
         
     if logical_instr >= 1:
-        logical_freq = logical_instr / total_instructions
+        logical_freq = float(logical_instr) / float(total_instructions)
     
     if mem_inst >= 1:
-        mem_freq = mem_inst / total_instructions
+        mem_freq = float(mem_inst) / float(total_instructions)
         
     if cntrl_inst >= 1:
-        cntrl_freq = cntrl_inst / total_instructions
+        cntrl_freq = float(cntrl_inst) / float(total_instructions)
     
     print('set instruction frequencies')
     return    
