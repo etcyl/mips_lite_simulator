@@ -90,7 +90,7 @@ def i_type(op,rs,rt,imm):
     elif op == 0b000111:
         
         R[rd] = int(R[rs]) | int(R[rt])
-        print('OR R'+str(rd)+','|' R'+str(rs)+', R'+str(rt))
+        print('ORI R'+str(rd)+','|' R'+str(rs)+', R'+str(rt))
         
     # ANDI
     elif op == 0b001001:
@@ -102,7 +102,7 @@ def i_type(op,rs,rt,imm):
     elif op == 0b001011:
         
         R[rd] = R[rs] ^ R[rt]
-        print('XOR R'+str(rd)+','^' R'+str(rs)+', R'+str(rt))     
+        print('XORI R'+str(rd)+','^' R'+str(rs)+', R'+str(rt))     
     
     else:
         print('I_type opcode error: default case used instead')
