@@ -67,7 +67,45 @@ def i_type(op,rs,rt,imm):
     # I- TYPE
     #   opcode      rs	    rt	    imm
     #    6b         5b	    5b	    16b
-    pass
+
+    # ADDI
+    if op == 0b000001:
+
+        R[rd] = int(R[rs]) + int(R[rt])
+        print('ADDI R'+str(rd)+','+' R'+str(rs)+', R'+str(rt))
+        
+    # SUBI    
+    elif op == 0b000011:
+        
+        R[rd] = int(R[rs]) - int(R[rt])
+        print('SUBI R'+str(rd)+','-' R'+str(rs)+', R'+str(rt))
+        
+    # MULI
+    elif op == 0b000101:
+        
+        R[rd] = int(R[rs]) * int(R[rt])
+        print('MULI R'+str(rd)+','*' R'+str(rs)+', R'+str(rt))
+        
+    # ORI
+    elif op == 0b000111:
+        
+        R[rd] = int(R[rs]) | int(R[rt])
+        print('OR R'+str(rd)+','|' R'+str(rs)+', R'+str(rt))
+        
+    # ANDI
+    elif op == 0b001001:
+        
+        R[rd] = int(R[rs]) & int(R[rt])
+        print('ANDI R'+str(rd)+','&' R'+str(rs)+', R'+str(rt))
+        
+     # XORI
+    elif op == 0b001011:
+        
+        R[rd] = R[rs] ^ R[rt]
+        print('XOR R'+str(rd)+','^' R'+str(rs)+', R'+str(rt))     
+    
+    else:
+        print('I_type opcode error: default case used instead')
 
 
 def simulator(ist):
