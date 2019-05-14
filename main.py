@@ -7,11 +7,11 @@ import sys
 prog_lst = [0xFFFFFFFF, # First program instruction
             0x00853000] # Second program instruction
 
-# PC for program counter
-PC = 0
-
 # R for register
 R = [0] * 31
+
+# Number of stages in the MIPS Lite ISA
+num_stages = 5
 
 # Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
 # Arithmetic, Logical, Memory Access, Control Transfer
@@ -25,7 +25,27 @@ mem_freq = 0
 cntrl_inst = 0
 cntrl_freq = 0
 
+class stage():
+    """A stage class is used in a MIPS pipeline"""
+    # The class accepts an instruction and performs subsequent actions such as:
+    # IF: Instruction Fetch
+    # ID: Instruction Decode
+    # EX: Execute
+    # MEM: Memory access
+    # Writeback: WB
+    def __init__(self):
+        self.source = 0
+        self.dest = 0
+        self.current_action = 'NULL' # This will be IF, ID, EX, MEM, or WB; NULL means no instruction is being used
 
+    def set_current_action(self, stage):
+        self.current_action = str(stage)
+
+    def set_source(self, source):
+        self.source = source
+
+    def set_dest(self, dest):
+        self.dest = dest
 
 def set_frequencies():
     if arithmetic_inst >= 1 and total_instructions >= 1:
@@ -115,7 +135,6 @@ def i_type(op, rs, rt, imm):
     elif op == 0b000101:
         R[rd] = int(R[rs]) * int(R[rt])
         print('MULI R' + str(rd) + ',' * ' R' + str(rs) + ', R' + str(rt))
-
     # ORI
     elif op == 0b000111:
         R[rd] = int(R[rs]) | int(R[rt])
@@ -184,6 +203,8 @@ def simulator(ist):
 
 def debug_functional(ist):
     global PC
+    PC = 0
+
     for PC in range(0, len(ist)):
         # converted to hex then binary
         ist[PC] = int(ist[PC])
@@ -230,6 +251,55 @@ def debug_functional(ist):
         # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
         # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
 
+def pipeline(ist):
+    pipe = [stage]*num_stages
+    for PC in range(0, len(ist)):
+        # converted to hex then binary
+        ist[PC] = int(ist[PC], 16)
+        print(bin(ist[PC]))
+
+        # R- TYPE
+        #   opcode      rs	    rt	    rd	   Un-use
+        #    6b         5b	    5b	    5b	    11b
+        # I- TYPE
+        #   opcode      rs	    rt	    imm
+        #    6b         5b	    5b	    16b
+
+        # shift right to the right 5+5+5+11=26 opcode
+        opcode = ist[PC] >> 26
+
+        # Decode go here
+
+        # R-type according to opcode:
+        # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
+        if opcode == 0b000000 or opcode == 0b000010 or opcode == 0b000100 or \
+                opcode == 0b00100 or opcode == 0b001010:
+            # getting rs 5b by masking and shifting
+
+            print('opcode =' + bin(opcode))
+            # 5+5+11=21 to the rght
+            rs = (ist[PC] >> 21) & 0b00000011111
+            # print(bin(rs))
+
+            # 5+11=16 to the right
+            rt = (ist[PC] >> 16) & 0b0000000000011111
+            # print(bin(rt))
+
+            # 11
+            rd = (ist[PC] >> 11) & 0b000000000000000011111
+            # print(bin(rd))
+
+            r_type(opcode, rs, rt, rd)
+
+        # I-type according to opcode:
+        # ADDI: 000001, SUBI: 000011, MULI: 000101, ORI: 000111, ANDI: 001001, XORI: 001011
+        # LDW: 001100, STW: 001101
+
+        # CONTROL FLOW INSTRUCTION
+        # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
+        # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
+
+
 def main():
     # try:
     # Read Memory trace by lines
@@ -245,8 +315,14 @@ def main():
     if int(option) == 1:
         with open(sys.argv[1], 'r') as my_file:
             # read line by line
+            print("Functional simulator selected ...\n")
             ist = my_file.read().splitlines()
         simulator(ist)
+    elif int(option) == 2:
+        print("Functional simulator + Timing simulator assuming no pipeline forwarding selected...\n")
+        pipeline(prog_lst)
+    elif int(option) == 3:
+        print("Functional simulator + Timing simulator with pipeline forwarding selected...\n")
     elif int(option) == 4:
         debug_functional(prog_lst)
 
