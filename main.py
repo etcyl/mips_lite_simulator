@@ -310,6 +310,9 @@ def pipeline(ist):
                     done = 1
                 else if PC == 0: # First instruction, so set the first stage in the pipeline
                     pipe[i].set_opcode(opcode = ist[PC] >> 26)
+                    # Do more work here
+                    # ...
+                    done = 1
                 else:
                     pass 
 
