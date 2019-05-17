@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # https://www.eg.bucknell.edu/~csci320/mips_web/
 
-import scratch
+from mips_stage import stage
 import sys
 
 # Debugger mode list representing the program
@@ -26,50 +26,6 @@ mem_freq = 0
 cntrl_inst = 0
 cntrl_freq = 0
 
-class stage():
-    """A stage class is used in a MIPS pipeline"""
-    # The class accepts an instruction and performs subsequent actions such as:
-    # IF: Instruction Fetch
-    # ID: Instruction Decode
-    # EX: Execute
-    # MEM: Memory access
-    # Writeback: WB
-    def __init__(self):
-        self.opcode = 0
-        self.source = 0
-        self.dest = 0
-        self.current_action = 'NULL' # This will be IF, ID, EX, MEM, or WB; NULL means no instruction is being used
-
-    def set_current_action(self, stage):
-        self.current_action = str(stage)
-
-    def get_current_action(self):
-        return self.current_action
-
-    def set_instruction(self, instruction):
-        self.instruction = int(instruction, 2)
-
-
-    def get_instruction(self):
-        return self.instruction
-
-    def get_source(self):
-        return self.source
-
-    def set_source(self, source):
-        self.source = source
-
-    def get_dest(self):
-        return self.dest
-
-    def set_dest(self, dest):
-        self.dest = dest
-
-    def set_opcode(self, opcode):
-        self.opcode = opcode
-
-    def get_opcode(self):
-        return self.opcode
 
 def set_frequencies():
     if arithmetic_inst >= 1 and total_instructions >= 1:
@@ -177,6 +133,8 @@ def i_type(op, rs, rt, rd):
 
 
 def decode(instruction):
+    intstruction = bin(instruction)
+    print("inside decode")
     # shift right to the right 5+5+5+11=26 opcode
     opcode = instruction >> 26
 
@@ -188,20 +146,20 @@ def decode(instruction):
 
         print('opcode =' + bin(opcode))
         # 5+5+11=21 to the rght
-        rs = (ist[PC] >> 21) & 0b00000011111
+        rs = (instruction >> 21) & 0b00000011111
         # print(bin(rs))
 
         # 5+11=16 to the right
-        rt = (ist[PC] >> 16) & 0b0000000000011111
+        rt = (instruction >> 16) & 0b0000000000011111
         # print(bin(rt))
 
         # 11
-        rd = (ist[PC] >> 11) & 0b000000000000000011111
+        rd = (instruction >> 11) & 0b000000000000000011111
         # print(bin(rd))
 
         return (opcode, rs, rt, rd)
     else:
-        pass
+        return (1, 1, 1, 1)
 
 def simulator(ist):
     global PC
@@ -326,42 +284,50 @@ def debug_functional(ist):
 def pipeline(memory_trace):
     """
     The MIPS pipelined execution is as follows:
-
         Clock
         Cycle   1   2   3   4   5   6   7   --> Time
         I_j     IF  ID  EX  MEM WB
         I_j+1       IF  ID  EX  MEM WB
         I_j+2           IF  ID  EX  MEM WB
-
     Here, the pipeline is abstracted as a list in Python of length equal to the number of stages.
     Since the MIPS Lite pipeline has 5 stages this means the pipeline list contains 5 elements.
-
     """
     global PC
     PC = 0 # Set the Program Counter to 0
-
-    pipe = [scratch.stage()]*num_stages
+    s = stage()
+    pipe = [s]*num_stages
+    print("Memory trace:", memory_trace, "\n")
+    print("Stage class:" ,s, "\n")
+    print("Pipeline:", pipe, "\n")
 
     for address in memory_trace: # Grab a line from the memory trace
+        print("Address is:", address)
         # converted to hex then binary
-        instruction = int(memory_trace[PC])
-        print(bin(memory_trace[PC]))
+        memory_trace[PC] = int(memory_trace[PC])
+        instruction = memory_trace[PC]
+        #print(bin(memory_trace[PC]))
         # Update the pipeline
-        for stage in pipe:
-            (opcode, rs, rt, rd) = decode(instruction)
-            if stage.get_current_action() == 'NULL':
-                stage.set_current_action(IF)
-                stage.set_opcode(opcode)
-                stage.set_source(rs)
-                stage.set_dest(rd)
-                PC += 4
-            elif stage.get_current_action() == 'IF':
-                ist[PC]
-                stage.set_current_action(ID)
-                stage.set_opcode(opcode)
-                stage.set_source(rs)
-                stage.set_dest(rd)
+        print(type(pipe))
+        res = []
+        for s in pipe:
+            res = decode(instruction)
+            print("res:", res)
+            opcode, rs, rt, rd = decode(instruction)
+            if s.get_current_action() == 'NULL':
+                s.set_current_action("IF")
+                s.set_opcode(opcode)
+                s.set_source(rs)
+                s.set_dest(rd)
+                PC += 1
+            elif s.get_current_action() == 'IF':
+                memory_trace[PC]
+                s.set_current_action("ID")
+                s.set_opcode(opcode)
+                s.set_source(rs)
+                s.set_dest(rd)
                 pass
+    print("Memory trace finished...\n")
+    
 def main():
     # Read Memory trace by lines
     print("""MIPS simulation Enter option (1-4):\n
