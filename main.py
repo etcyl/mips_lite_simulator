@@ -390,10 +390,6 @@ def main():
     elif int(option) == 4:
         debug_functional(prog_lst)
 
-    # except :
-    #     print('Check filename again!')
-
-
 if __name__ == '__main__':
     _p = main()
     print(_p)
