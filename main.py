@@ -14,42 +14,6 @@ R = [0] * 31
 # Number of stages in the MIPS Lite ISA
 num_stages = 5
 
-# Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
-# Arithmetic, Logical, Memory Access, Control Transfer
-total_instructions = 0
-arithmetic_inst = 0  # Number of arithmetic instructions
-arithmetic_freq = 0
-logical_inst = 0
-logical_freq = 0
-mem_inst = 0
-mem_freq = 0
-cntrl_inst = 0
-cntrl_freq = 0
-
-
-def set_frequencies():
-    if arithmetic_inst >= 1 and total_instructions >= 1:
-        arithmetic_freq = float(arithmetic_inst) / float(total_instructions)
-    else:
-        if arithmetic_inst == 0:
-            pass
-        else:
-            print('error setting arithmetic freq: total_instructions == 0')
-            return
-
-    if logical_inst >= 1:
-        logical_freq = float(logical_inst) / float(total_instructions)
-
-    if mem_inst >= 1:
-        mem_freq = float(mem_inst) / float(total_instructions)
-
-    if cntrl_inst >= 1:
-        cntrl_freq = float(cntrl_inst) / float(total_instructions)
-
-    print('set instruction frequencies')
-    return
-
-
 def r_type(op, rs, rt, rd):
     # R-type according to opcode:
     # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
@@ -134,7 +98,6 @@ def i_type(op, rs, rt, rd):
 
 def decode(instruction):
     intstruction = bin(instruction)
-    print("inside decode")
     # shift right to the right 5+5+5+11=26 opcode
     opcode = instruction >> 26
 
@@ -281,7 +244,78 @@ def debug_functional(ist):
         # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
         # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
 
+def set_frequencies():
+    if arithmetic_inst >= 1 and total_instructions >= 1:
+        arithmetic_freq = float(arithmetic_inst) / float(total_instructions)
+    else:
+        if arithmetic_inst == 0:
+            pass
+        else:
+            print('error setting arithmetic freq: total_instructions == 0')
+            return
+
+    if logical_inst >= 1:
+        logical_freq = float(logical_inst) / float(total_instructions)
+
+    if mem_inst >= 1:
+        mem_freq = float(mem_inst) / float(total_instructions)
+
+    if cntrl_inst >= 1:
+        cntrl_freq = float(cntrl_inst) / float(total_instructions)
+
+    print('Frequencies of different instructions calculated...')
+    print_frequencies()
+    return
+
+def print_frequencies():
+    print("Frequency of arithmetic instruction:\n", arithmetic_freq)
+    print("Frequency of logical instruction:\n", logical_freq)
+    print("Frequency of memory instruction:\n", mem_freq)
+    print("Frequency of control instruction:\n", cntrl_freq)
+    return
+
 def pipeline(memory_trace):
+    # Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
+    # Arithmetic, Logical, Memory Access, Control Transfer
+    total_instructions = 0
+    arithmetic_inst = 0  # Number of arithmetic instructions
+    arithmetic_freq = 0
+    logical_inst = 0
+    logical_freq = 0
+    mem_inst = 0
+    mem_freq = 0
+    cntrl_inst = 0
+    cntrl_freq = 0
+ 
+    def print_frequencies():
+        print("Frequency of arithmetic instruction:\n", arithmetic_freq)
+        print("Frequency of logical instruction:\n", logical_freq)
+        print("Frequency of memory instruction:\n", mem_freq)
+        print("Frequency of control instruction:\n", cntrl_freq)
+        return
+    
+    def set_frequencies():
+        if arithmetic_inst >= 1 and total_instructions >= 1:
+            arithmetic_freq = float(arithmetic_inst) / float(total_instructions)
+        elif arithmetic_inst == 0:
+            pass
+        else:
+            print('error setting arithmetic freq: total_instructions == 0')
+            return
+
+        if logical_inst >= 1:
+            logical_freq = float(logical_inst) / float(total_instructions)
+
+        if mem_inst >= 1:
+            mem_freq = float(mem_inst) / float(total_instructions)
+
+        if cntrl_inst >= 1:
+            cntrl_freq = float(cntrl_inst) / float(total_instructions)
+
+        print('Frequencies of different instructions calculated...')
+        print_frequencies()
+        return
+
     """
     The MIPS pipelined execution is as follows:
         Clock
@@ -305,28 +339,31 @@ def pipeline(memory_trace):
         # converted to hex then binary
         memory_trace[PC] = int(memory_trace[PC])
         instruction = memory_trace[PC]
-        #print(bin(memory_trace[PC]))
         # Update the pipeline
         print(type(pipe))
-        res = []
         for s in pipe:
-            res = decode(instruction)
-            print("res:", res)
-            opcode, rs, rt, rd = decode(instruction)
+            (opcode, rs, rt, rd) = decode(instruction)
             if s.get_current_action() == 'NULL':
-                s.set_current_action("IF")
+                s.set_current_action('IF')
                 s.set_opcode(opcode)
                 s.set_source(rs)
                 s.set_dest(rd)
                 PC += 1
             elif s.get_current_action() == 'IF':
-                memory_trace[PC]
-                s.set_current_action("ID")
-                s.set_opcode(opcode)
-                s.set_source(rs)
-                s.set_dest(rd)
-                pass
+                s.set_current_action('ID')
+            elif s.get_current_action() == 'ID':
+                s.set_current_action('EX')
+            elif s.get_current_action() == 'EX':
+                s.set_current_action('MEM')
+            elif s.get_current_action() == 'MEM':
+                s.set_current_action('WB')
+            elif s.get_current_action() == 'WB':
+                total_instructions += 1
+                s.set_current_action('NULL')
+              
     print("Memory trace finished...\n")
+    set_frequencies() 
+    return pipe
     
 def main():
     # Read Memory trace by lines
@@ -343,10 +380,11 @@ def main():
             # read line by line
             print("Functional simulator selected ...\n")
             ist = my_file.read().splitlines()
-        simulator(ist)
+            simulator(ist)
     elif int(option) == 2:
         print("Functional simulator + Timing simulator assuming no pipeline forwarding selected...\n")
-        pipeline(prog_lst)
+        p = pipeline(prog_lst)
+        return p
     elif int(option) == 3:
         print("Functional simulator + Timing simulator with pipeline forwarding selected...\n")
     elif int(option) == 4:
@@ -357,4 +395,7 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    _p = main()
+    print(_p)
+    for i in range(len(_p)): # Print the stages of the pipeline
+        print("Stage #", i, "currently performing:", _p[i].get_current_action())
