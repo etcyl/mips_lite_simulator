@@ -67,8 +67,8 @@ def set_frequencies():
             print('error setting arithmetic freq: total_instructions == 0')
             return
 
-    if logical_instr >= 1:
-        logical_freq = float(logical_instr) / float(total_instructions)
+    if logical_inst >= 1:
+        logical_freq = float(logical_inst) / float(total_instructions)
 
     if mem_inst >= 1:
         mem_freq = float(mem_inst) / float(total_instructions)
@@ -108,25 +108,25 @@ def r_type(op, rs, rt, rd):
     elif op == 0b000110:
 
         R[rd] = R[rs] | R[rt]
-        print('OR R' + str(rd) + ',' | ' R' + str(rs) + ', R' + str(rt))
+        print('OR R' + str(rd) + ',' '|' ' R' + str(rs) + ', R' + str(rt))
 
     # AND
     elif op == 0b001000:
 
         R[rd] = R[rs] & R[rt]
-        print('AND R' + str(rd) + ',' & ' R' + str(rs) + ', R' + str(rt))
+        print('AND R' + str(rd) + ',' '&' ' R' + str(rs) + ', R' + str(rt))
 
     # XOR
     elif op == 0b001010:
 
         R[rd] = R[rs] ^ R[rt]
-        print('XOR R' + str(rd) + ',' ^ ' R' + str(rs) + ', R' + str(rt))
+        print('XOR R' + str(rd) + ',' '^' ' R' + str(rs) + ', R' + str(rt))
 
     else:
         print('r_type opcode error: default case used instead')
 
 
-def i_type(op, rs, rt, imm):
+def i_type(op, rs, rt, rd):
     # I-type according to opcode:
     # ADDI: 000001, SUBI: 000011, MULI: 000101, ORI: 000111, ANDI: 001001, XORI: 001011
     # LDW: 001100, STW: 001101
@@ -136,27 +136,27 @@ def i_type(op, rs, rt, imm):
     # ADDI
     if op == 0b000001:
         R[rd] = int(R[rs]) + int(R[rt])
-        print('ADDI R' + str(rd) + ',' + ' R' + str(rs) + ', R' + str(rt))
+        print('ADDI R' + str(rd) + ',' '+' ' R' + str(rs) + ', R' + str(rt))
     # SUBI
     elif op == 0b000011:
         R[rd] = int(R[rs]) - int(R[rt])
-        print('SUBI R' + str(rd) + ',' - ' R' + str(rs) + ', R' + str(rt))
+        print('SUBI R' + str(rd) + ',' '-' ' R' + str(rs) + ', R' + str(rt))
     # MULI
     elif op == 0b000101:
         R[rd] = int(R[rs]) * int(R[rt])
-        print('MULI R' + str(rd) + ',' * ' R' + str(rs) + ', R' + str(rt))
+        print('MULI R' + str(rd) + ',' '*' ' R' + str(rs) + ', R' + str(rt))
     # ORI
     elif op == 0b000111:
         R[rd] = int(R[rs]) | int(R[rt])
-        print('ORI R' + str(rd) + ',' | ' R' + str(rs) + ', R' + str(rt))
+        print('ORI R' + str(rd) + ',' '|' ' R' + str(rs) + ', R' + str(rt))
     # ANDI
     elif op == 0b001001:
         R[rd] = int(R[rs]) & int(R[rt])
-        print('ANDI R' + str(rd) + ',' & ' R' + str(rs) + ', R' + str(rt))
+        print('ANDI R' + str(rd) + ',' '&' ' R' + str(rs) + ', R' + str(rt))
     # XORI
     elif op == 0b001011:
         R[rd] = int(R[rs]) ^ int(R[rt])
-        print('XORI R' + str(rd) + ',' ^ ' R' + str(rs) + ', R' + str(rt))
+        print('XORI R' + str(rd) + ',' '^' ' R' + str(rs) + ', R' + str(rt))
     # Default exception case
     else:
         print('I_type opcode error: default case used instead')
@@ -283,14 +283,25 @@ def debug_functional(ist):
         # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
 
 def pipeline(ist):
+    """
+    The MIPS pipelined execution is as follows:
+    
+        Clock
+        Cycle   1   2   3   4   5   6   7   --> Time
+        I_j     IF  ID  EX  MEM WB
+        I_j+1       IF  ID  EX  MEM WB
+        I_j+2           IF  ID  EX  MEM WB
+    
+    """
     global PC
-    PC = 0
+    PC = 0 # Set the Program Counter to 0
 
     pipe = [stage]*num_stages
-    pipe[0].set_current_action = "IF"
-    for current_line in range(0, len(ist)):
+    #pipe[0].set_current_action = "IF" this is already set to NULL in the constructor for the stage class
+    for current_line in range(0, len(ist)): # Grab a line from the memory trace
         # converted to hex then binary
-        ist[current_line] = int(ist[current_line], 16)
+        ist[current_line] = int(ist[current_line])
+        #ist[current_line] = int(ist[current_line], 16)
         print(bin(ist[current_line]))
 
         # R- TYPE
@@ -304,17 +315,15 @@ def pipeline(ist):
         opcode = ist[current_line] >> 26
 
         done = 0
-        while(!done):
+        while(not done):
             for i in range(len(pipe)): # Base case, no more instructions to perform this cycle
-                if pipe[i].get_current_action() == 'NULL': # Stop processing when the next stage is empty
+                if pipe[i].get_current_action() == 'NULL' and i != 0: # Stop processing when the next stage is empty
                     done = 1
-                else if PC == 0: # First instruction, so set the first stage in the pipeline
+                elif PC == 0: # First instruction, so set the first stage in the pipeline
                     pipe[i].set_opcode(opcode = ist[PC] >> 26)
-                    # Do more work here
-                    # ...
-                    done = 1
                 else:
-                    pass 
+                    done = 1
+                    pass
 
 def main():
     # try:
