@@ -1,4 +1,5 @@
 from entry import entry
+from bitstring import BitArray
 
 
 
@@ -11,7 +12,7 @@ stall=00
 R = [0] * 31
 
 
-memory=[2000]
+memory=[100000000000]
 
 arithmetic_inst=0
 logical_inst=0
@@ -23,6 +24,12 @@ def do_stage(entry_list,i):
         ID(entry_list,i)
     elif entry_list[i].stage==3:
         EXE(entry_list,i)
+    elif entry_list[i].stage==4:
+        pass
+    elif entry_list[i].stage == 5:
+        entry_list[i].reset()
+
+
 
 
 
@@ -37,6 +44,15 @@ def check_stage(entry_list,i):
     elif entry_list[i].stage == 2:
         entry_list[i].stage = 3
         do_stage(entry_list, i)
+    elif entry_list[i].stage == 3:
+        entry_list[i].stage = 4
+        do_stage(entry_list, i)
+    elif entry_list[i].stage == 4:
+        entry_list[i].stage = 5
+        do_stage(entry_list, i)
+
+
+
 
 
 
@@ -53,7 +69,7 @@ def IF(entry_list,i):
 # ID passing entry_list[i].inst
 def ID(entry_list,i):
     entry_list[i].inst = int(entry_list[i].inst,16)
-    print(bin(entry_list[i].inst))
+    #print(bin(entry_list[i].inst))
 
     # shift right to the right 5+5+5+11=26 opcode
     entry_list[i].opcode = entry_list[i].inst >> 26
@@ -65,7 +81,7 @@ def ID(entry_list,i):
     # R-type according to opcode:
     # ADD: 000000, SUB: 000010, MUL: 000100, OR: 000110, AND: 001000, XOR: 001010
     if opcode == 0b000000 or opcode == 0b000010 or opcode == 0b000100 or \
-            opcode == 0b00100 or opcode == 0b001010:
+            opcode == 0b000110 or opcode==0b001000 or opcode == 0b001010:
         # store type in to object
         entry_list[i].type='r_type'
         decode_r_type(entry_list,i)
@@ -73,13 +89,13 @@ def ID(entry_list,i):
         if opcode == 0b000000:
             entry_list[i].name_op='add'
 
-        elif opcode == 0b000000:
+        elif opcode == 0b000010:
             entry_list[i].name_op='sub'
 
         elif opcode == 0b000100:
             entry_list[i].name_op='mul'
 
-        elif opcode == 0b00100:
+        elif opcode == 0b000110:
             entry_list[i].name_op='or'
 
         elif opcode == 0b001000:
@@ -141,7 +157,7 @@ def ID(entry_list,i):
         # CONTROL FLOW entry_list[i].inst
         # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
         # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
-    elif opcode == 0b001110 or  opcode == 0b001111 or opcode == 0b010000 or opcode == 0b010000 or opcode == 0b0100001:
+    elif opcode == 0b001110 or  opcode == 0b001111 or opcode == 0b010000 or opcode== 0b0100001:
         entry_list[i].type = 'control_flow'
 
         if opcode == 0b001110:
@@ -162,7 +178,7 @@ def ID(entry_list,i):
             entry_list[i].rt = (entry_list[i].inst >> 16) & 0b0000000000011111
             # print(bin(rt))
 
-            entry_list[i].imm = (entry_list[i].inst) & 0b00000001111111111111111
+            entry_list[i].x = (entry_list[i].inst) & 0b00000001111111111111111
             # print(bin(rd))
 
         elif opcode == 0b010000:
@@ -172,7 +188,7 @@ def ID(entry_list,i):
 
         elif opcode == 0b010001:
             entry[i].name_op = 'halt'
-            entry_list[i].stop = 1
+
 
 
         else:
@@ -207,7 +223,11 @@ def decode_i_type(entry_list,i):
     #print(bin(entry_list[i].rt))
 
 
-    entry_list[i].imm = (entry_list[i].inst) & 0b00000001111111111111111
+    #sign imm converter
+    imm=(entry_list[i].inst) & 0b00000001111111111111111
+
+    entry_list[i].imm = BitArray(bin=bin(imm)).int
+    #print(entry_list[i].imm)
     #print(bin(entry_list[i].imm))
 
 
@@ -235,11 +255,16 @@ def exe_control_flow(entry_list,i):
     elif entry_list[i].name_op == 'beq':
         print('BEQ' + ' R' + str(rs) + ', ' + ' R' + str(rt) + ', ' + str(x))
         if R[rs] == R[rt]:
-            # 5+5+11
             entry_list[i].branch_taken = 1
             PC_global=x
-    elif opcode == 0b010000:
-        pass
+    elif entry_list[i].name_op == 'jr':
+        print('JR' + ' R' + str(rs) )
+        entry_list[i].branch_taken = 1
+        PC_global=R[rs]
+    elif entry_list[i].name_op =='halt':
+        entry_list[i].stop=1
+
+
 
 
 
@@ -332,26 +357,34 @@ def exe_i_type(entry_list,i):
     #LDW
     elif entry_list[i].name_op == 'ldw':
         # load value of addressing store in R[rs] + imm is the base into R[rt]
+        print('LDW ' + 'R' + str(rt) + ', R' + str(rs) + ', ' + str(imm))
         R[rt] = memory[R[rs]+ imm]
-        print('LDW ' + 'R'+str(rt) + ', R' + str(rs) + ', ' + str(imm))
         logical_inst += 1
     #LDW
     elif entry_list[i].name_op == 'stw':
+        print('XORI ' + 'R' + str(rt) + ', R' + str(rs) + ', ' + str(imm))
         memory[R[rs]+imm]= R[rt]
-        print('XORI ' + 'R'+str(rt) + ', R' + str(rs) + ', ' + str(imm))
         logical_inst += 1
     else:
         print('error exe')
 
 def main():
     entry_list = [entry() for i in range(5)]
+    entry_list = [entry() for i in range(5)]
 
     entry_list[1].reset()
-    entry_list[1].line = 0
-    check_stage(entry_list, 1)
-    check_stage(entry_list, 1)
-    check_stage(entry_list, 1)
-    check_stage(entry_list, 1)
+    entry_list[1].line = 8
+
+    PC_global=0
+    while(PC_global!=100):
+        if entry_list[1].stage==0:
+            entry_list[1].line=PC_global
+            check_stage(entry_list, 1)
+            check_stage(entry_list, 1)
+            check_stage(entry_list, 1)
+            check_stage(entry_list, 1)
+            check_stage(entry_list, 1)
+        PC_global+=1
 
 
 
