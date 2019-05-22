@@ -16,9 +16,12 @@ class stage():
     # Writeback: WB
     def __init__(self):
         self.opcode = 0
-        self.source = 0
-        self.dest = 0
-        self.current_action = 'NULL' # This will be IF, ID, EX, MEM, or WB; NULL means no instruction is being used
+        self.rs = 0
+        self.rd = 0
+        self.rt = 0
+        self.immediate = 0
+        self.type = "NONE"
+        self.current_action = "NOOP" # This will be IF, ID, EX, MEM, or WB; NULL means no instruction is being used
 
     def set_current_action(self, stage):
         self.current_action = str(stage)
@@ -29,24 +32,41 @@ class stage():
     def set_instruction(self, instruction):
         self.instruction = int(instruction, 2)
 
-
     def get_instruction(self):
         return self.instruction
-
-    def get_source(self):
-        return self.source
-
-    def set_source(self, source):
-        self.source = source
-
-    def get_dest(self):
-        return self.dest
-
-    def set_dest(self, dest):
-        self.dest = dest
 
     def set_opcode(self, opcode):
         self.opcode = opcode
 
     def get_opcode(self):
         return self.opcode
+
+    def get_rs(self):
+        return self.source
+
+    def set_rs(self, rs):
+        self.rs = rs
+
+    def get_rd(self):
+        return self.rd
+
+    def set_rd(self, rd):
+        self.rd = rd
+
+    def get_rt(self):
+        return self.rt
+
+    def set_rt(self, rt):
+        self.rt = rt
+
+    def set_immediate(self, immediate):
+        self.immediate = immediate
+    
+    def get_immediate(self):
+        return self.immediate
+    
+    def get_type(self):
+        return self.type
+
+    def set_type(self, _type):
+        self.type = _type
