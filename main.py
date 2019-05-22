@@ -8,9 +8,6 @@ import sys
 prog_lst = [0xFFFFFFFF, # First program instruction
             0x00853000] # Second program instruction
 
-# R for register
-R = [0] * 31
-
 # Number of stages in the MIPS Lite ISA
 num_stages = 5
 
@@ -97,7 +94,6 @@ def i_type(op, rs, rt, rd):
 
 
 def decode(instruction):
-    intstruction = bin(instruction)
     # shift right to the right 5+5+5+11=26 opcode
     opcode = instruction >> 26
 
@@ -119,10 +115,12 @@ def decode(instruction):
         # 11
         rd = (instruction >> 11) & 0b000000000000000011111
         # print(bin(rd))
+        
+        _type = "R-type"
 
-        return (opcode, rs, rt, rd)
+        return (opcode, rs, rt, rd, _type)
     else:
-        return (1, 1, 1, 1)
+        return (1, 1, 1, 1, "ERROR")
 
 def simulator(ist):
     global PC
@@ -244,35 +242,8 @@ def debug_functional(ist):
         # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
         # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
 
-def set_frequencies():
-    if arithmetic_inst >= 1 and total_instructions >= 1:
-        arithmetic_freq = float(arithmetic_inst) / float(total_instructions)
-    else:
-        if arithmetic_inst == 0:
-            pass
-        else:
-            print('error setting arithmetic freq: total_instructions == 0')
-            return
-
-    if logical_inst >= 1:
-        logical_freq = float(logical_inst) / float(total_instructions)
-
-    if mem_inst >= 1:
-        mem_freq = float(mem_inst) / float(total_instructions)
-
-    if cntrl_inst >= 1:
-        cntrl_freq = float(cntrl_inst) / float(total_instructions)
-
-    print('Frequencies of different instructions calculated...')
-    print_frequencies()
-    return
-
-def print_frequencies():
-    print("Frequency of arithmetic instruction:\n", arithmetic_freq)
-    print("Frequency of logical instruction:\n", logical_freq)
-    print("Frequency of memory instruction:\n", mem_freq)
-    print("Frequency of control instruction:\n", cntrl_freq)
-    return
+def memory_trace_reader(filename):
+    return 
 
 def pipeline(memory_trace):
     # Total number of instructions and a breakdown of instruction frequencies for the following instruction types:
@@ -287,6 +258,14 @@ def pipeline(memory_trace):
     cntrl_inst = 0
     cntrl_freq = 0
  
+    def memory_trace_reader(filename):
+        f_ptr = open(filename, 'r')
+        mem = f_ptr.read().splitlines()
+        for i in range(len(mem)):
+            mem[i] = int(mem[i], 16)
+            mem[i] = bin(mem[i])
+        return mem
+    
     def print_frequencies():
         print("Frequency of arithmetic instruction:\n", arithmetic_freq)
         print("Frequency of logical instruction:\n", logical_freq)
@@ -315,6 +294,15 @@ def pipeline(memory_trace):
         print('Frequencies of different instructions calculated...')
         print_frequencies()
         return
+    
+    def execute_action(stage):
+        return
+
+    def memory_action(stage):
+        return
+    
+    def writeback(stage):
+        return    
 
     """
     The MIPS pipelined execution is as follows:
@@ -327,40 +315,65 @@ def pipeline(memory_trace):
     Since the MIPS Lite pipeline has 5 stages this means the pipeline list contains 5 elements.
     """
     global PC
+    global IR
     PC = 0 # Set the Program Counter to 0
+    counter = 0
+    halt = 0
+    init = 1
     s = stage()
     pipe = [s]*num_stages
     print("Memory trace:", memory_trace, "\n")
     print("Stage class:" ,s, "\n")
     print("Pipeline:", pipe, "\n")
-
-    for address in memory_trace: # Grab a line from the memory trace
-        print("Address is:", address)
-        # converted to hex then binary
-        memory_trace[PC] = int(memory_trace[PC])
-        instruction = memory_trace[PC]
+    while not halt: # Grab a line from the memory trace
+        instruction = bin(memory_trace[counter])
+        print("Instruction is:", instruction)
         # Update the pipeline
-        print(type(pipe))
-        for s in pipe:
-            (opcode, rs, rt, rd) = decode(instruction)
-            if s.get_current_action() == 'NULL':
-                s.set_current_action('IF')
-                s.set_opcode(opcode)
-                s.set_source(rs)
-                s.set_dest(rd)
-                PC += 1
-            elif s.get_current_action() == 'IF':
-                s.set_current_action('ID')
-            elif s.get_current_action() == 'ID':
-                s.set_current_action('EX')
-            elif s.get_current_action() == 'EX':
-                s.set_current_action('MEM')
-            elif s.get_current_action() == 'MEM':
-                s.set_current_action('WB')
-            elif s.get_current_action() == 'WB':
-                total_instructions += 1
-                s.set_current_action('NULL')
-              
+        for i in range(len(pipe)):
+            if(init): # This will only be true if it's the very first instruction
+                init = 0
+                pipe[0].set_current_action("IF")
+                pipe[0].set_instruction(instruction)
+                IR = instruction
+                PC += 4
+                counter += 1
+            else:
+                if pipe[i].get_current_action() == "IF":
+                    pipe[i].set_current_action("ID")
+                    pipe[i].get_instruction()
+                    instruction_format = decode(instruction)
+                    if instruction_format[-1] == "R-type":
+                        (opcode, rs, rt, rd, _type) = instruction_format
+                        pipe[i].set_opcode(opcode)
+                        pipe[i].set_rs(rs)
+                        pipe[i].set_rt(rt)
+                        pipe[i].set_rd(rd)
+                        pipe[i].set_type(_type)
+                    elif instruction_format[-1] == "I-type":
+                        (opcode, rs, rt, immediate, _type) = instruction_format
+                        pipe[i].set_opcode(opcode)
+                        pipe[i].set_rs(rs)
+                        pipe[i].set_rt(rt)
+                        pipe[i].set_immediate(immediate)
+                        pipe[i].set_type(_type)
+                    else:
+                        print("ERROR decoding")
+                elif pipe[i].get_current_action() == "ID":
+                    pipe[i].set_current_action("EX")
+                    # Perform the ALU operation, either a memory reference, a register to register action, 
+                    # register to immediate action, or branch
+                    execute_action(pipe[i])
+                elif pipe[i].get_current_action() == "EX":
+                    pipe[i].set_current_action("MEM")
+                    memory_action(pipe[i])
+                elif pipe[i].get_current_action() == "MEM":
+                    pipe[i].set_curent_action("WB")
+                    writeback(pipe[i])
+                elif pipe[i].get_current_action() == "NOOP":
+                    pass
+                else:
+                    print("ERROR looping over pipeline, invalid stage state detected")
+                
     print("Memory trace finished...\n")
     set_frequencies() 
     return pipe
