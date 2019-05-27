@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# https://www.eg.bucknell.edu/~csci320/mips_web/
 
 from mips_stage import stage
 from bitstring import Bits
