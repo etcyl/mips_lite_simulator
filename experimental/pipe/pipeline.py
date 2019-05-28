@@ -96,33 +96,6 @@ class simulator():
                 self.IF(self.pipeline[0])
             self.reset_inst()
             clock_cycle += 1
-        """
-            for i in range(len(self.pipeline)):
-                if self.pipeline[i].is_stalled() == 1:
-                    pass
-                elif self.pipeline[i].get_current_action() == "NOOP":
-                    self.pipeline[i].set_current_action("IF")
-                    self.IF(self.pipeline[i])
-                elif self.pipeline[i].get_current_action() == "IF":
-                    self.pipeline[i].set_current_action("ID")
-                    self.ID(self.pipeline[i])
-                elif self.pipeline[i].get_current_action() == "ID":
-                    self.pipeline[i].set_current_action("EX")
-                    self.EX(self.pipeline[i])
-                elif self.pipeline[i].get_current_action() == "EX":
-                    self.pipeline[i].set_current_action("MEM")
-                    self.MEM(self.pipeline[i])
-                elif self.pipeline[i].get_current_action() == "MEM":
-                    self.pipeline[i].set_current_action("WB")
-                    self.WB(self.pipeline[i])
-        
-            self.IF()
-            if int(self.inst,16)==0:
-                break
-            self.ID()
-            self.EXE()
-            self.reset_inst()
-            """
 
         # Final register state:
         print('\nFinal register state')
