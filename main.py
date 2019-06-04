@@ -1,10 +1,15 @@
-from simulator import simulator
+from simulator import Simulator
+from simulator_no_forwarding import Simulator_no_forwarding
 
 def main():
-    simulator1 = simulator()
-    simulator1.show_instruction=False
-    simulator1.simulation()
+    #simulator = Simulator()
+    #simulator.show_instruction = False
+    #simulator.simulation()
 
+
+    simulator_no_forwarding = Simulator_no_forwarding()
+
+    simulator_no_forwarding.simulation()
 
 
 
