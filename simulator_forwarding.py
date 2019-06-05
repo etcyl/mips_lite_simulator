@@ -13,6 +13,10 @@ class Simulator_forwarding(Simulator) :
     # Next inst R5->[R4, R3]->R2
 
     def update_dependent(self):
+        if self.branch_taken == 1:
+            self.dependent_table[0] = -1
+            return
+        
         # evict the second slot
         self.dependent_table[0] = -1
 
