@@ -125,4 +125,4 @@ class Simulator_no_forwarding(Simulator):
         print('Control transfer instructions: ' + str(self.control_transfer_inst))
         print('Stall_cycle: ' + str(self.stall))
 
-        print('Without forwarding: ' + str(self.stall+total_instruction+4) + ' cycles')
+        print('Without forwarding: ' + str(self.stall+total_instruction+4) + ' cycles\n\n')

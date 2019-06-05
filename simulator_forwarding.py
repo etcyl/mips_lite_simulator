@@ -92,5 +92,5 @@ class Simulator_forwarding(Simulator) :
         print('Control transfer instructions: ' + str(self.control_transfer_inst))
         print('Stall_cycle: ' + str(self.stall))
 
-        print('With forwarding: ' + str(self.stall+total_instruction+4) + ' cycles')
+        print('With forwarding: ' + str(self.stall+total_instruction+4) + ' cycles\n\n')
 

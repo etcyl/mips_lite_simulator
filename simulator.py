@@ -90,7 +90,7 @@ class Simulator:
         print('Arithmetic instructions: '+str(self.arithmetic_inst))
         print('Logical instructions: ' + str(self.logical_inst))
         print('Memory access instructions: '+ str(self.memory_inst))
-        print('Control transfer instructions: ' + str(self.control_transfer_inst))
+        print('Control transfer instructions: ' + str(self.control_transfer_inst)+'\n\n')
 
 
 
