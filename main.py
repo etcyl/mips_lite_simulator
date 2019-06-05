@@ -7,10 +7,10 @@ def main():
     simulator_no_forwarding = Simulator_no_forwarding()
     simulator_forwarding = Simulator_forwarding()
 
-
-    simulator.memory_trace = 'memory.txt'
-    simulator_no_forwarding.memory_trace='memory.txt'
-    simulator_forwarding.memory_trace = 'memory.txt'
+    memory_trace = 'final_proj_trace.txt'
+    simulator.memory_trace = memory_trace
+    simulator_no_forwarding.memory_trace = memory_trace
+    simulator_forwarding.memory_trace = memory_trace
     # Read Memory trace by lines
     print("""MIPS simulation Enter option (1-3):\n
      1) Functional simulator only\n

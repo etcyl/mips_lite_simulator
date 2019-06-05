@@ -16,7 +16,7 @@ class Simulator:
         # R for register
         self.R = [0] * 31
 
-        self.show_instruction= True
+        self.show_instruction = False
 
         #memory extend
         self.memory_extend = [0]*1000
