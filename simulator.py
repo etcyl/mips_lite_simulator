@@ -16,7 +16,7 @@ class Simulator:
         # R for register
         self.R = [0] * 31
 
-        self.show_instruction=False
+        self.show_instruction= True
 
         #memory extend
         self.memory_extend = [0]*1000
@@ -282,11 +282,12 @@ class Simulator:
                 print('BEQ' + ' R' + str(self.rs) + ', ' + ' R' + str(self.rt) + ', ' + str(self.x))
             if self.R[self.rs] == self.R[self.rt]:
                 self.PC = self.x + self.PC - 1
-                self.stall+=2
+                self.stall += 2
 
 
         elif self.name_op == 'jr':
             self.control_transfer_inst += 1
+            self.stall += 2
             if self.show_instruction:
                 print('JR' + ' R' + str(self.rs))
             self.PC = int(self.R[self.rs] / 4)
