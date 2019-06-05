@@ -17,7 +17,7 @@ class Simulator_forwarding(Simulator) :
         self.dependent_table[0] = -1
 
         # first slot
-        if self.name_op == 'lw':
+        if self.name_op == 'ldw':
             self.dependent_table[0] = self.rt
         else:
             pass
