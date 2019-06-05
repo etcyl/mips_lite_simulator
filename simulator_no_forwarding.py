@@ -15,6 +15,11 @@ class Simulator_no_forwarding(Simulator):
     # Next inst R5->[R4, R3]->R2
 
     def update_dependent(self):
+        if self.branch_taken == 1:
+            self.dependent_table[0] = -1
+            self.dependent_table[1] = -1
+            return
+
         # evict the second slot
         self.dependent_table[1] = -1
         # first slot -> second slot
@@ -102,7 +107,7 @@ class Simulator_no_forwarding(Simulator):
 
             # update the dependent table
             self.update_dependent()
-
+            y=0
             self.reset_inst()
 
         # Final register state:
@@ -111,11 +116,13 @@ class Simulator_no_forwarding(Simulator):
         for i in range(1, 13):
             print('R' + str(i) + ': ' + str(self.R[i]))
 
+        total_instruction=self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst
         print('\nInstruction counts')
-        print('Total number of instruction: ' + str(
-            self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst))
+        print('Total number of instruction: ' + str(total_instruction))
         print('Arithmetic instructions: ' + str(self.arithmetic_inst))
         print('Logical instructions: ' + str(self.logical_inst))
         print('Memory access instructions: ' + str(self.memory_inst))
         print('Control transfer instructions: ' + str(self.control_transfer_inst))
         print('Stall_cycle: ' + str(self.stall))
+
+        print('Without forwarding: ' + str(self.stall+total_instruction+4) + ' cycles')

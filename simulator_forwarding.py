@@ -79,12 +79,14 @@ class Simulator_forwarding(Simulator) :
         for i in range(1, 13):
             print('R' + str(i) + ': ' + str(self.R[i]))
 
+        total_instruction = self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst
         print('\nInstruction counts')
-        print('Total number of instruction: ' + str(
-            self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst))
+        print('Total number of instruction: ' + str(total_instruction))
         print('Arithmetic instructions: ' + str(self.arithmetic_inst))
         print('Logical instructions: ' + str(self.logical_inst))
         print('Memory access instructions: ' + str(self.memory_inst))
         print('Control transfer instructions: ' + str(self.control_transfer_inst))
         print('Stall_cycle: ' + str(self.stall))
+
+        print('With forwarding: ' + str(self.stall+total_instruction+4) + ' cycles')
 

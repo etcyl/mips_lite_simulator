@@ -53,6 +53,7 @@ class Simulator:
 
     def reset_inst(self):
         # each instruction
+        self.branch_taken = 0
         self.opcode = 0
         self.inst=0
         self.name_op = ''
@@ -274,6 +275,7 @@ class Simulator:
                 print('BZ' + ' R' + str(self.rs) + ', ' + str(self.x))
             if self.R[self.rs] == 0:
                 self.PC = self.x + self.PC - 1
+                self.branch_taken +=1
                 self.stall += 2
 
         elif self.name_op == 'beq':
@@ -282,12 +284,14 @@ class Simulator:
                 print('BEQ' + ' R' + str(self.rs) + ', ' + ' R' + str(self.rt) + ', ' + str(self.x))
             if self.R[self.rs] == self.R[self.rt]:
                 self.PC = self.x + self.PC - 1
+                self.branch_taken +=1
                 self.stall += 2
 
 
         elif self.name_op == 'jr':
             self.control_transfer_inst += 1
             self.stall += 2
+            self.branch_taken +=1
             if self.show_instruction:
                 print('JR' + ' R' + str(self.rs))
             self.PC = int(self.R[self.rs] / 4)
