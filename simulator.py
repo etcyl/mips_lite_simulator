@@ -13,10 +13,11 @@ from bitstring import BitArray
 
 class Simulator:
     def __init__(self):
+        self.memory_trace = 'memory.txt'
         # R for register
         self.R = [0] * 31
 
-        self.show_instruction=True
+        self.show_instruction=False
 
         #memory extend
         self.memory_extend = [0]*1000
@@ -64,15 +65,15 @@ class Simulator:
         self.x = 0
 
     def simulation(self):
-        f = open(memory_trace)
+        f = open(self.memory_trace)
         self.lines = f.readlines()
         self.len_file=len(self.lines)
         self.lines.extend(self.memory_extend)
         self.PC=0
-        while(self.PC<self.len_file or self.stop==1):
+        while(self.PC<self.len_file and self.stop != 1):
             self.IF()
-            if int(self.inst,16)==0:
-                break
+            #if int(self.inst,16)==0:
+            #    break
             self.ID()
             self.EXE()
             self.reset_inst()
@@ -85,11 +86,11 @@ class Simulator:
 
 
         print('\nInstruction counts')
-        print('Total number of instruction: '+str(self.arithmetic_inst+self.logical_inst+self.memory_inst+self.control_transfer_inst*2))
+        print('Total number of instruction: '+str(self.arithmetic_inst+self.logical_inst+self.memory_inst+self.control_transfer_inst))
         print('Arithmetic instructions: '+str(self.arithmetic_inst))
         print('Logical instructions: ' + str(self.logical_inst))
         print('Memory access instructions: '+ str(self.memory_inst))
-        print('Control transfer instructions: ' + str(self.control_transfer_inst*2))
+        print('Control transfer instructions: ' + str(self.control_transfer_inst))
 
 
 
@@ -179,7 +180,7 @@ class Simulator:
             # CONTROL FLOW self.inst
             # BZ: 001110, BEQ: 001111, JR: 010000, HALT: 010001
             # SPECIAL CASE BZ, JR, HALT does not use all the field in I format
-        elif self.opcode == 0b001110 or self.opcode == 0b001111 or self.opcode == 0b010000 or self.opcode == 0b0100001:
+        elif self.opcode == 0b001110 or self.opcode == 0b001111 or self.opcode == 0b010000 or self.opcode == 0b010001:
             self.type = 'control_flow'
 
             if self.opcode == 0b001110:
@@ -269,18 +270,21 @@ class Simulator:
             pass
 
         if self.name_op == 'bz':
+            self.control_transfer_inst += 1
             if self.show_instruction:
                 print('BZ' + ' R' + str(self.rs) + ', ' + str(self.x))
             if self.R[self.rs] == 0:
                 self.PC = self.x + self.PC - 1
-                self.control_transfer_inst += 1
+                self.stall += 2
 
         elif self.name_op == 'beq':
+            self.control_transfer_inst += 1
             if self.show_instruction:
                 print('BEQ' + ' R' + str(self.rs) + ', ' + ' R' + str(self.rt) + ', ' + str(self.x))
             if self.R[self.rs] == self.R[self.rt]:
                 self.PC = self.x + self.PC - 1
-                self.control_transfer_inst += 1
+                self.stall+=2
+
 
         elif self.name_op == 'jr':
             self.control_transfer_inst += 1
@@ -289,11 +293,11 @@ class Simulator:
             self.PC = int(self.R[self.rs] / 4)
 
         elif self.name_op == 'halt':
+            self.control_transfer_inst += 1
             self.stop = 1
             if self.show_instruction:
                 print('HALT')
 
-            self.control_transfer_inst += 1
 
 
     def exe_r_type(self):
