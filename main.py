@@ -7,7 +7,7 @@ def main():
     simulator_no_forwarding = Simulator_no_forwarding()
     simulator_forwarding = Simulator_forwarding()
     # Read Memory trace by lines
-    print("""MIPS simulation Enter option (1-4):\n
+    print("""MIPS simulation Enter option (1-3):\n
      1) Functional simulator only\n
      2) Functional simulator + Timing simulator assuming no pipeline forwarding\n
      3) Functional simulator + Timing simulator with pipeline forwarding\n""")  # Pass a list of instructions to test
