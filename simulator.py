@@ -1,5 +1,4 @@
-memory_trace = 'final_proj_trace.txt'
-#memory_trace = 'memory.txt'
+
 # https://stackoverflow.com/questions/42397772/converting-binary-representation-to-signed-64-bit-integer-in-python
 
 #
@@ -13,7 +12,7 @@ from bitstring import BitArray
 
 class Simulator:
     def __init__(self):
-        self.memory_trace = 'memory.txt'
+        self.memory_trace = ''
         # R for register
         self.R = [0] * 31
 

@@ -6,6 +6,11 @@ def main():
     simulator = Simulator()
     simulator_no_forwarding = Simulator_no_forwarding()
     simulator_forwarding = Simulator_forwarding()
+
+
+    simulator.memory_trace = 'memory.txt'
+    simulator_no_forwarding.memory_trace='memory.txt'
+    simulator_forwarding.memory_trace = 'memory.txt'
     # Read Memory trace by lines
     print("""MIPS simulation Enter option (1-3):\n
      1) Functional simulator only\n
@@ -21,7 +26,10 @@ def main():
     elif int(option) == 3:
         simulator_forwarding.simulation()
     else:
-        print('invalid input')
+        simulator.simulation()
+        simulator_no_forwarding.simulation()
+        simulator_forwarding.simulation()
+
 
 
 

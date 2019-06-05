@@ -113,9 +113,9 @@ class Simulator_no_forwarding(Simulator):
 
         print('\nInstruction counts')
         print('Total number of instruction: ' + str(
-            self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst * 2))
+            self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst))
         print('Arithmetic instructions: ' + str(self.arithmetic_inst))
         print('Logical instructions: ' + str(self.logical_inst))
         print('Memory access instructions: ' + str(self.memory_inst))
-        print('Control transfer instructions: ' + str(self.control_transfer_inst * 2))
+        print('Control transfer instructions: ' + str(self.control_transfer_inst))
         print('Stall_cycle: ' + str(self.stall))
