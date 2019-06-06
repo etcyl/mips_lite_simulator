@@ -80,7 +80,7 @@ class Simulator_forwarding(Simulator) :
         # Final register state:
         print('\nFinal register state')
         print('Program counter: ' + str((self.PC - 1) * 4))
-        for i in range(1, 13):
+        for i in range(0,31):
             print('R' + str(i) + ': ' + str(self.R[i]))
 
         total_instruction = self.arithmetic_inst + self.logical_inst + self.memory_inst + self.control_transfer_inst
