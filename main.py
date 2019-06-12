@@ -20,6 +20,7 @@ def main():
     option = input('Enter Number:')
 
     if int(option) == 1:
+        simulator.show_instruction=False
         simulator.simulation()
     elif int(option) == 2:
         simulator_no_forwarding.simulation()

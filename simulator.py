@@ -414,7 +414,7 @@ class Simulator:
             if self.show_instruction:
                 print('STW ' + 'R' + str(self.rt) + ', R' + str(self.rs) + ', ' + str(self.imm))
             else:
-                print('Address: ' + str(self.imm) + ', Contents: ' + str(self.R[self.rt]))
+                print('Address: ' + str(int((self.R[self.rs] + self.imm))) + ', Contents: ' + str(self.R[self.rt]))
             self.memory_inst += 1
         else:
             print('error exe')
