@@ -7,15 +7,16 @@ from bitstring import BitArray
 arithmetic_inst = 0
 PC = 0
 IR = 0
-jump_flag =0
+jump_flag = 0
 halt = 0
 arithmetic_inst = 0
-registers = [0]*15
+registers = [0] * 31
 total_instructions = 0
 logical_inst = 0
 mem_inst = 0
 cntrl_inst = 0
 counter = 0
+
 
 def functional(filename):
     global arithmetic_inst
@@ -29,28 +30,28 @@ def functional(filename):
     global IR
     global jump_flag
     global counter
-    #memory_trace = []
-    mem_extend = [0]*1000
-    
+    # memory_trace = []
+    mem_extend = [0] * 1000
+
     def print_instruction_counts():
-        print ('Total number of instructions: ', arithmetic_inst + logical_inst + mem_inst + cntrl_inst, '\n')
-        print ('Arithmetic instructions: ', arithmetic_inst, '\n')
-        print ('Logical instructions: ', logical_inst, '\n')
-        print ('Memory access instructions: ', mem_inst, '\n')
-        print ('Control transfer instructions: ', cntrl_inst, '\n')
+        print('Total number of instructions: ', arithmetic_inst + logical_inst + mem_inst + cntrl_inst, '\n')
+        print('Arithmetic instructions: ', arithmetic_inst, '\n')
+        print('Logical instructions: ', logical_inst, '\n')
+        print('Memory access instructions: ', mem_inst, '\n')
+        print('Control transfer instructions: ', cntrl_inst, '\n')
         return
 
     def decode(inst):
         inst = int(str(inst), 16)
         opcode = inst >> 26
-        #print 'inst and opcode are: ', inst, opcode, '\n'
+        # print 'inst and opcode are: ', inst, opcode, '\n'
         if opcode == 0b000000 or opcode == 0b000010 or opcode == 0b000100 or \
                 opcode == 0b000110 or opcode == 0b001000 or opcode == 0b001010:
-            rs = (inst >> 21 ) & 0b00000011111
-            rt = (inst >> 16 ) & 0b0000000000011111
+            rs = (inst >> 21) & 0b00000011111
+            rt = (inst >> 16) & 0b0000000000011111
             rd = (inst >> 11) & 0b000000000000000011111
             _type = "R-type"
-            return (opcode, rs, rt, rd, _type) 
+            return (opcode, rs, rt, rd, _type)
         elif opcode == 0b000001 or opcode == 0b000011 or opcode == 0b000101 or \
                 opcode == 0b000111 or opcode == 0b001001 or opcode == 0b001011 or \
                 opcode == 0b001100 or opcode == 0b001101 or opcode == 0b001110 or \
@@ -60,7 +61,7 @@ def functional(filename):
             immediate = (inst) & 0b00000001111111111111111
             sign = immediate >> 15
             if sign == 0b1:
-                immediate = BitArray(bin=bin(immediate).int)
+                immediate = BitArray(bin=bin(immediate)).int
             _type = "I-type"
             return (opcode, rs, rt, immediate, _type)
 
@@ -74,25 +75,25 @@ def functional(filename):
         global counter
         global jump_flag
         global halt
-        #print 's.get_opcode() is: ', s.get_opcode(), '\n'        
-        if s.get_opcode() == 0b000000:# ADD
+        # print 's.get_opcode() is: ', s.get_opcode(), '\n'
+        if s.get_opcode() == 0b000000:  # ADD
             arithmetic_inst += 1
-            #print 'type of rd: ', type(s.get_rd()), '\n'
+            # print 'type of rd: ', type(s.get_rd()), '\n'
             rd = s.get_rd()
             rs = s.get_rs()
             rt = s.get_rt()
-            print ('ADD rs + rt = ', rs + rt, '\n')
+            print('ADD rs + rt = ', rs + rt, '\n')
             registers[rd] = registers[rs] + registers[rt]
             return
-        elif s.get_opcode() == 0b000010:# SUB
+        elif s.get_opcode() == 0b000010:  # SUB
             arithmetic_inst += 1
             rd = s.get_rd()
             rs = s.get_rs()
             rt = s.get_rt()
-            print ('SUB rs - rt = ', rs - rt, '\n')
+            print('SUB rs - rt = ', rs - rt, '\n')
             registers[rd] = registers[rs] - registers[rt]
             return
-        elif s.get_opcode() == 0b000100:# MUL
+        elif s.get_opcode() == 0b000100:  # MUL
             arithmetic_inst += 1
             rd = s.get_rd()
             rs = s.get_rs()
@@ -100,15 +101,15 @@ def functional(filename):
             print('MUL rs * rt = ', rs * rt, '\n')
             registers[rd] = registers[rs] * registers[rt]
             return
-        elif s.get_opcode() == 0b000110:# OR
+        elif s.get_opcode() == 0b000110:  # OR
             logical_inst += 1
             rd = s.get_rd()
             rs = s.get_rs()
             rt = s.get_rt()
             print('OR rt OR rs = ', rs | rs, '\n')
             registers[rd] = registers[rs] | registers[rt]
-            return 
-        elif s.get_opcode()  == 0b001000:# AND 
+            return
+        elif s.get_opcode() == 0b001000:  # AND
             logical_inst += 1
             rd = s.get_rd()
             rs = s.get_rs()
@@ -116,7 +117,7 @@ def functional(filename):
             print('AND rt AND rs = ', rt & rs, '\n')
             registers[rd] = registers[rs] & registers[rt]
             return
-        elif s.get_opcode()  == 0b001010:# XOR
+        elif s.get_opcode() == 0b001010:  # XOR
             logical_inst += 1
             rd = s.get_rd()
             rs = s.get_rs()
@@ -124,19 +125,19 @@ def functional(filename):
             print('XOR rt XOR rs = ', rt ^ rs, '\n')
             registers[rd] = registers[rs] ^ registers[rt]
             return
-        elif s.get_opcode() == 0b000001: # ADDI
+        elif s.get_opcode() == 0b000001:  # ADDI
             arithmetic_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
             rt = s.get_rt()
             print('ADDI rs + imm = ', rs + imm, '\n')
-            sign = imm >> 15
-            #print(int(imm, 16))
-            if sign == 0b0:
-                imm = BitArray(str(bin=bin(imm).int))
+            #sign = imm >> 15
+            # print(int(imm, 16))
+            #if sign == 0b0:
+            #    imm = BitArray(str(bin=bin(imm).int))
             registers[rt] = registers[rs] + imm
             return
-        elif s.get_opcode() == 0b000011: # SUBI
+        elif s.get_opcode() == 0b000011:  # SUBI
             imm = s.get_imm()
             rs = s.get_rs()
             rt = s.get_rt()
@@ -144,7 +145,7 @@ def functional(filename):
             registers[rt] = rs - imm
             arithmetic_inst += 1
             return
-        elif s.get_opcode() == 0b000101: # MULI
+        elif s.get_opcode() == 0b000101:  # MULI
             arithmetic_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -152,7 +153,7 @@ def functional(filename):
             print('MULI rs * imm = ', rs * imm, '\n')
             registers[rt] = registers[rs] * imm
             return
-        elif s.get_opcode() == 0b000111: # ORI
+        elif s.get_opcode() == 0b000111:  # ORI
             logical_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -160,7 +161,7 @@ def functional(filename):
             print('ORI rs ORI imm = ', rs | imm, '\n')
             registers[rt] = registers[rs] | imm
             return
-        elif s.get_opcode() == 0b001001: # ANDI
+        elif s.get_opcode() == 0b001001:  # ANDI
             logical_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -168,7 +169,7 @@ def functional(filename):
             print('ANDI')
             registers[rt] = registers[rs] & imm
             return
-        elif s.get_opcode() == 0b001011: # XORI
+        elif s.get_opcode() == 0b001011:  # XORI
             logical_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -176,28 +177,28 @@ def functional(filename):
             print('XORI rs XORI imm = ', rs ^ imm, '\n')
             registers[rt] = int(registers[rs]) ^ imm
             return
-        elif s.get_opcode() == 0b001100: # LDW
+        elif s.get_opcode() == 0b001100:  # LDW
             mem_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
             rt = s.get_rt()
             print('LDW \n')
-            #print 'rt: ', rt, '\n'
-            #print int((imm + registers[rs])/4)
-            #registers[rt] = int(memory_trace[int((imm + registers[rs])/4)], 16)
-            registers[rt] = int(memory_trace[int((registers[rs] + imm)/4)],16)
+            # print 'rt: ', rt, '\n'
+            # print int((imm + registers[rs])/4)
+            # registers[rt] = int(memory_trace[int((imm + registers[rs])/4)], 16)
+            registers[rt] = int(memory_trace[int((registers[rs] + imm) / 4)], 16)
             return
-        elif s.get_opcode() == 0b001101: # STW
+        elif s.get_opcode() == 0b001101:  # STW
             mem_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
             rt = s.get_rt()
-            print('STW \n')
-            #print int((registers[rs] + imm)/4)
-            #print rt
-            memory_trace[int((registers[rs] + imm)/4)] = registers[rt]
+            print('STW ' + str(int((registers[rs] + imm)/4)) + ', RT =' + str(registers[rt]))
+            # print int((registers[rs] + imm)/4)
+            # print rt
+            memory_trace[int((registers[rs] + imm) / 4)] = registers[rt]
             return
-        elif s.get_opcode() == 0b001110: # BZ
+        elif s.get_opcode() == 0b001110:  # BZ
             cntrl_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -209,7 +210,7 @@ def functional(filename):
             else:
                 pass
             return
-        elif s.get_opcode() == 0b001111: # BEQ
+        elif s.get_opcode() == 0b001111:  # BEQ
             cntrl_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
@@ -221,31 +222,31 @@ def functional(filename):
             else:
                 pass
             return
-        elif s.get_opcode() == 0b010000: # JR
+        elif s.get_opcode() == 0b010000:  # JR
             cntrl_inst += 1
             imm = s.get_imm()
             rs = s.get_rs()
             rt = s.get_rt()
             print('JR')
-            counter = int(registers[rs]/4)
+            counter = int(registers[rs] / 4)
             jump_flag = 1
             return
-        elif s.get_opcode() == 0b010001: # HALT
+        elif s.get_opcode() == 0b010001:  # HALT
             print('HALT')
             halt = 1
             cntrl_inst += 1
             return
 
-        #print 'Error during execute_action() func, opcode did not match with known values\n'        
+        # print 'Error during execute_action() func, opcode did not match with known values\n'
         return
 
     s = stage()
     file_ptr = open(filename, 'r')
     memory_trace = file_ptr.readlines()
-    #memory_trace.extend(mem_extend)
-    #print counter
-    while not halt: # Grab a line from the memory trace
-        #print counter
+    # memory_trace.extend(mem_extend)
+    # print counter
+    while not halt:  # Grab a line from the memory trace
+        # print counter
         instruction = memory_trace[counter]
         counter += 1
         IR = instruction
@@ -263,18 +264,18 @@ def functional(filename):
             s.set_rs(rs)
             s.set_rt(rt)
             s.set_imm(rd)
-            s.set_type(_type)   
+            s.set_type(_type)
         execute_action(memory_trace, s)
-        (instruction, opcode, rs, rt, rd, _type) = (0, 0, 0, 0, 0, '') 
-        PC += 4 
+        (instruction, opcode, rs, rt, rd, _type) = (0, 0, 0, 0, 0, '')
+        PC += 4
         if counter == 1024:
             halt = 1
- 
+
     print_instruction_counts()
-    print('Program Counter: ', str((counter- 1)*4), '\n')
+    print('Program Counter: ', str((counter - 1) * 4), '\n')
     for i in range(len(registers)):
         print('R' + str(i) + ':', registers[i], '\n')
     return
 
-fn = "/Users/mattf/Desktop/final_trace.txt"#trace.txt"
+fn = "memory.txt"
 functional(fn)
